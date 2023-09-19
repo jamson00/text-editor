@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const errorHandler = require('express-error-handler');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,10 +12,15 @@ app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Include your routes here, assuming you have an 'htmlRoutes.js' file in a 'routes' directory
+// Include your routes here (e.g., htmlRoutes)
 require('./routes/htmlRoutes')(app);
 
-// Error handling middleware (custom or use a library like 'express-error-handler')
+// Error handling middleware
+const errorHandlerOptions = {
+  server: 'Express app',
+};
+
+app.use(errorHandler(errorHandlerOptions));
 
 // Start the server
 app.listen(PORT, () => {
