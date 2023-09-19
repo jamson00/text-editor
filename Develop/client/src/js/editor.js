@@ -1,4 +1,4 @@
-// Import methods to save and get data from the indexedDB database in './database.js'
+// Import methods to save and get data from the IndexedDB database in './database.js'
 import { getDb, putDb } from './database';
 import { header } from './header';
 
@@ -22,21 +22,30 @@ export default class {
       tabSize: 2,
     });
 
-    // When the editor is ready, set the value to whatever is stored in indexeddb.
-    // Fall back to localStorage if nothing is stored in indexeddb, and if neither is available, set the value to header.
-    getDb().then((data) => {
-      console.info('Loaded data from IndexedDB, injecting into editor');
-      this.editor.setValue(data || localData || header);
-    });
+    // When the editor is ready, set the value to whatever is stored in IndexedDB.
+    // Fall back to localStorage if nothing is stored in IndexedDB, and if neither is available, set the value to header.
+    getDb()
+      .then((data) => {
+        console.info('Loaded data from IndexedDB, injecting into editor');
+        this.editor.setValue(data || localData || header);
+      })
+      .catch((error) => {
+        console.error('Error loading data from IndexedDB:', error);
+        // Handle the error as needed (e.g., fall back to localStorage).
+      });
 
     this.editor.on('change', () => {
       localStorage.setItem('content', this.editor.getValue());
     });
 
-    // Save the content of the editor when the editor itself is loses focus
+    // Save the content of the editor when the editor itself loses focus
     this.editor.on('blur', () => {
       console.log('The editor has lost focus');
-      putDb(localStorage.getItem('content'));
+      putDb(localStorage.getItem('content'))
+        .catch((error) => {
+          console.error('Error saving data to IndexedDB:', error);
+          // Handle the error as needed.
+        });
     });
   }
 }
